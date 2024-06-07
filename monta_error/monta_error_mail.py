@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from google.oauth2 import service_account
 import requests
 from requests.auth import HTTPBasicAuth
-from google.oauth2 import service_account
 import gspread
 import math
 import io
@@ -40,29 +39,14 @@ end_date = last_day_last_month.strftime('%Y-%m-%d')
 # Import keys.env
 load_dotenv()
 
-# Retrieve the Google Cloud credentials from environment variables
-credentials_info = {
-    "type": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_TYPE'),
-    "project_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PROJECT_ID'),
-    "private_key_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY_ID'),
-    "private_key": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY').replace('\\n', '\n'),
-    "client_email": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_EMAIL'),
-    "client_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_ID'),
-    "auth_uri": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_AUTH_URI'),
-    "token_uri": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_TOKEN_URI'),
-    "auth_provider_x509_cert_url": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_AUTH_PROVIDER_X509_CERT_URL'),
-    "client_x509_cert_url": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_X509_CERT_URL'),
-    "universe_domain": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_UNIVERSE_DOMAIN')
-}
+# Get the GCP keys
+gc_keys = os.getenv("AARDG_GOOGLE_CREDENTIALS")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = gc_keys
 
-# Create an error message if any required environment variable is not found
-missing_keys = [key for key, value in credentials_info.items() if value is None]
-if missing_keys:
-    raise EnvironmentError(f"The following environment variables are missing: {', '.join(missing_keys)}")
+credentials = service_account.Credentials.from_service_account_file(gc_keys)
+project_id = credentials.project_id
 
-# Initialize the BigQuery client using the credentials from the environment variables
-credentials = service_account.Credentials.from_service_account_info(credentials_info)
-client = bigquery.Client(credentials=credentials, project=credentials_info["project_id"])
+client = bigquery.Client(credentials=credentials, project=project_id)
 
 # Define the SQL query
 order_sql_query = f"""
@@ -154,21 +138,8 @@ df_theory = df_theoretical[['order_id', 'date_created', 'product_id', 'quantity'
 # Define the scope
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 
-google_sheets_credentials_info = {
-    "type": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_TYPE'),
-    "project_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PROJECT_ID'),
-    "private_key_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY_ID'),
-    "private_key": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY').replace('\\n', '\n'),
-    "client_email": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_EMAIL'),
-    "client_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_ID'),
-    "auth_uri": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_AUTH_URI'),
-    "token_uri": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_TOKEN_URI'),
-    "auth_provider_x509_cert_url": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_AUTH_PROVIDER_X509_CERT_URL'),
-    "client_x509_cert_url": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_X509_CERT_URL'),
-}
-
 # Get the Google Sheets credentials through the gc_keys.json
-creds = service_account.Credentials.from_service_account_info(google_sheets_credentials_info)
+creds = service_account.Credentials.from_service_account_file(gc_keys, scopes=scope)
 
 # Authorize the Google Sheet
 client = gspread.authorize(creds)
@@ -307,7 +278,7 @@ workbook.close()
 excel_buffer_1.seek(0)
 
 # Initialize the Storage client
-storage_client = storage.Client.from_service_account_json(google_sheets_credentials_info)
+storage_client = storage.Client(credentials=credentials, project=project_id)
 
 # Define and select GCP-Bucket
 bucket_name = "wrong_order_bucket"

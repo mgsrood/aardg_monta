@@ -113,24 +113,15 @@ excel_buffer.seek(0)
 # Filename for the Excel-file
 excel_filename = f'Verkeerd Verzonden Orders van {str(date_other_day)} tot {str(date_today)}.xlsx'
 
-# Load Google Cloud credentials from environment variables
-credentials_info = {
-    "type": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_TYPE'),
-    "project_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PROJECT_ID'),
-    "private_key_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY_ID'),
-    "private_key": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY').replace('\\n', '\n'),
-    "client_email": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_EMAIL'),
-    "client_id": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_ID'),
-    "auth_uri": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_AUTH_URI'),
-    "token_uri": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_TOKEN_URI'),
-    "auth_provider_x509_cert_url": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_AUTH_PROVIDER_X509_CERT_URL'),
-    "client_x509_cert_url": os.getenv('GOOGLE_APPLICATION_CREDENTIALS_CLIENT_X509_CERT_URL')
-}
+# Get the GCP keys
+gc_keys = os.getenv("AARDG_GOOGLE_CREDENTIALS")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = gc_keys
 
-credentials = service_account.Credentials.from_service_account_info(credentials_info)
+credentials = service_account.Credentials.from_service_account_file(gc_keys)
+project_id = credentials.project_id
 
 # Initialize the Storage client
-client = storage.Client(credentials=credentials, project=credentials_info["project_id"])
+client = storage.Client(credentials=credentials, project=project_id)
 
 # Define and select GCP-Bucket
 bucket_name = "wrong_order_bucket"
