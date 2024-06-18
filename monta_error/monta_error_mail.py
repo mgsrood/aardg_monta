@@ -93,7 +93,7 @@ def shipments(order_id):
                     p_package += 1
             return p_package, p_mailbox
         else:
-            print(f"Failed to fetch data. Status code: {response.status_code}")
+            print(f"Failed to fetch data for order {order_id}. Status code: {response.status_code}")
     except Exception as e:
         print(f"Fout bij het verwerken van order {order_id}: {str(e)}")
     return 0, 0
