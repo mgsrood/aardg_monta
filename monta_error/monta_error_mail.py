@@ -21,7 +21,7 @@ import re
 from google.cloud import storage
 
 # Email
-recipient_mail = 'mgsrood@gmail.com'
+recipient_mail = 'Henk.denBoer@monta.nl'
 
 # Create month-variable
 today = datetime.now()

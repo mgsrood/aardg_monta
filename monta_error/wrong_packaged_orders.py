@@ -26,8 +26,8 @@ first_day_last_month = last_day_last_month.replace(day=1)
 year_of_last_month = first_day_last_month.year
 
 # Fromat dates for SQL
-start_date = '2024-05-01'
-end_date = '2024-05-31'
+start_date = first_day_last_month
+end_date = last_day_last_month
 
 # Import keys.env
 load_dotenv()
