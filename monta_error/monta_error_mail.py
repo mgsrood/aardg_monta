@@ -85,12 +85,15 @@ def shipments(order_id):
         response = requests.get(url, auth=HTTPBasicAuth(username, password))
         if response.status_code == 200:
             response_data = response.json()
-            for item in response_data:
-                if 'Brievenbusdoos wit A5' in item['PackageDescription'] or 'Brievenbusdoos wit A4' in item['PackageDescription']:
+            for item in response_data['ShippedBoxesNotOnPallets']:
+                package_description = item['ShippedCarrierInfo']['PackageDescription']
+                if 'Brievenbusdoos wit A5' in package_description or 'Brievenbusdoos wit A4' in package_description:
                     p_mailbox += 1
                 else:
                     p_package += 1
             return p_package, p_mailbox
+        else:
+            print(f"Failed to fetch data. Status code: {response.status_code}")
     except Exception as e:
         print(f"Fout bij het verwerken van order {order_id}: {str(e)}")
     return 0, 0
