@@ -6,3 +6,4 @@ Requests
 XlsxWriter
 google-cloud-storage
 google-cloud-bigquery
+openpyxl
