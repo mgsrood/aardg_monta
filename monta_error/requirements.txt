@@ -1,6 +1,6 @@
-gspread==6.1.2
-pandas==2.2.2
-protobuf==5.27.0
-python-dotenv==1.0.1
-Requests==2.32.3
-XlsxWriter==3.2.0
+gspread
+pandas
+protobuf
+python-dotenv
+Requests
+XlsxWriter
