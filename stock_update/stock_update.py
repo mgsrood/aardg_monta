@@ -46,9 +46,9 @@ def stock_batch(sku):
     # Turn the response into a Pandas DataFrame
     df = pd.DataFrame({
     'SKU': sku_list,
-    'Description': desc_list,
+    'Omschrijving': desc_list,
     'Batch': reference_list,
-    'Quantity': quantity_list,
+    'Aantal': quantity_list,
     'Timestamp': timestamp
 })
     return df
@@ -71,16 +71,46 @@ def stock_non_batch(sku):
     # Turn the response into a Pandas DataFrame
     df = pd.DataFrame({
     'SKU': sku_list,
-    'Description': desc_list,
+    'Omschrijving': desc_list,
     'Batch': reference_list,
-    'Quantity': quantity_list,
+    'Aantal': quantity_list,
     'Timestamp': timestamp
 })
     return df
 
+# Function to extract Product from Omschrijving
+def determine_base_product(row):
+        omschrijving = row['Omschrijving']
+
+        if pd.isna(omschrijving):
+            return 'unknown'
+
+        omschrijving = row['Omschrijving'].lower()
+
+        if 'kombucha' in omschrijving and ('citroen' not in omschrijving and 'bloem' not in omschrijving):
+            return 'Kombucha'
+        elif 'citroen' in omschrijving:
+            return 'Citroen'
+        elif 'bloem' in omschrijving:
+            return 'Bloem'
+        elif 'waterkefir' in omschrijving:
+            return 'Waterkefir'
+        elif 'frisdrank' in omschrijving:
+            return 'Frisdrank Mix'
+        elif 'mix' in omschrijving and 'frisdrank' not in omschrijving:
+            return 'Mix Originals'
+        elif 'starter' in omschrijving or 'introductie' in omschrijving:
+            return 'Starter Box'
+        elif 'gember' in omschrijving:
+            return 'Gember'
+        elif 'probiotica' in omschrijving:
+            return 'Probiotica'
+        else:
+            return 'unknown'
+
 if __name__ == "__main__":
 
-    stock_df = pd.DataFrame(columns=['SKU', 'Description', 'Batch', 'Quantity'])
+    stock_df = pd.DataFrame(columns=['SKU', 'Omschrijving', 'Batch', 'Aantal', 'Timestamp'])
 
     batch_skus = {
         '8719326399355': 'Citroen Kombucha 12x 250ml',
@@ -107,6 +137,9 @@ if __name__ == "__main__":
     for sku in non_batch_skus.keys():
         df = stock_non_batch(sku)
         stock_df = stock_df._append(df, ignore_index=True)
+
+    # Apply function to Omschrijving column
+    stock_df['Product'] = stock_df.apply(determine_base_product, axis=1)
 
     try:
     # Voer de query uit en laad de resultaten in een DataFrame
