@@ -105,6 +105,12 @@ def determine_base_product(row):
             return 'Gember'
         elif 'probiotica' in omschrijving:
             return 'Probiotica'
+        elif 'kalender' in omschrijving:
+            return 'Kalender'
+        elif '2 colli' in omschrijving:
+            return 'Verzenddoos 2'
+        elif '3 colli' in omschrijving:
+            return 'Verzenddoos 3'
         else:
             return 'unknown'
 
