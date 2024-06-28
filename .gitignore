@@ -4,3 +4,4 @@ pull_from_git.sh
 monta_venv
 report.xlsx
 stock_venv
+inbound_venv
