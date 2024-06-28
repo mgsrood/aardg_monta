@@ -99,7 +99,7 @@ relevant_columns = ['Product', 'Aantal', 'Datum', 'Type', 'Batch', 'Quarantaine'
 df = df[relevant_columns]
 
 # Limit to the necessary dates
-df = df[df['Datum'] == yesterday]
+df = df[df['Datum'] == today]
 
 try:
 # Voer de query uit en laad de resultaten in een DataFrame
