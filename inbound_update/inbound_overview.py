@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from google.oauth2 import service_account
 import pandas_gbq as pd_gbq
+from tabulate import tabulate
 
 # Import keys.env
 load_dotenv()
@@ -31,8 +32,8 @@ table_id = os.environ.get('INBOUND_TABLE_ID')
 if api_url is None or username is None or password is None:
     raise ValueError("API URL, username, or password environment variables are not set.")
 
-def retrieve_inbound():
-    endpoint = 'inbounds?sinceid=1'
+def retrieve_inbound(id):
+    endpoint = f'inbounds?sinceid={id}'
     full_url = api_url + endpoint
     response = requests.get(full_url, auth=HTTPBasicAuth(username, password))
     
@@ -42,7 +43,24 @@ def retrieve_inbound():
         print(f"Failed to retrieve inbound information: {response.status_code} - {response.text}")
         return None
 
-inbound_data = retrieve_inbound()
+# ID Query
+id_query = f"""
+SELECT MAX(Id)
+FROM `{project_id}.{dataset_id}.{table_id}`
+"""
+
+# Execute the ID query
+df = pd_gbq.read_gbq(id_query, project_id=project_id, credentials=credentials)
+
+if df.empty:
+    last_id = 1
+else:
+    last_id = df['f0_'].iloc[0]
+
+# Retrieve inbound data
+inbound_data = retrieve_inbound(last_id)
+print(inbound_data)
+
 
 # Maak een lege lijst om de opgeschoonde data in op te slaan
 cleaned_data = []
@@ -95,11 +113,14 @@ df['Created'] = df['Created'].apply(parse_datetime)
 df['Datum'] = df['Created'].dt.date
 
 # Select the relevant columns
-relevant_columns = ['Product', 'Aantal', 'Datum', 'Type', 'Batch', 'Quarantaine']
+relevant_columns = ['Id', 'Product', 'Aantal', 'Datum', 'Type', 'Batch', 'Quarantaine']
 df = df[relevant_columns]
 
 # Limit to the necessary dates
 df = df[df['Datum'] == today]
+
+# Tabulate the data
+table = tabulate(df, headers='keys', tablefmt='psql')
 
 try:
 # Voer de query uit en laad de resultaten in een DataFrame
