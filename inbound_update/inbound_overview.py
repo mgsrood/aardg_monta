@@ -59,73 +59,76 @@ else:
 
 # Retrieve inbound data
 inbound_data = retrieve_inbound(last_id)
-print(inbound_data)
 
+# Controleer of er data is opgehaald
+if not inbound_data:
+    print("Geen nieuwe inbound data gevonden.")
 
-# Maak een lege lijst om de opgeschoonde data in op te slaan
-cleaned_data = []
+else: 
+    # Maak een lege lijst om de opgeschoonde data in op te slaan
+    cleaned_data = []
 
-# Itereer over de inbound_data om de relevante data op te schonen
-for entry in inbound_data:
-    cleaned_entry = {
-        "Id": entry["Id"],
-        "Sku": entry["Sku"],
-        "Aantal": entry["Quantity"],
-        "Created": entry["Created"],
-        "Type": entry["Type"],
-        "Batch": entry["Batch"]["Reference"],
-        "Quarantaine": entry["Quarantaine"]
+    # Itereer over de inbound_data om de relevante data op te schonen
+    for entry in inbound_data:
+        cleaned_entry = {
+            "Id": entry["Id"],
+            "Sku": entry["Sku"],
+            "Aantal": entry["Quantity"],
+            "Created": entry["Created"],
+            "Type": entry["Type"],
+            "Batch": entry["Batch"]["Reference"],
+            "Quarantaine": entry["Quarantaine"]
+        }
+        cleaned_data.append(cleaned_entry)
+
+    # Maak een dataframe van de cleaned_data
+    df = pd.DataFrame(cleaned_data)
+
+    # Create the product column
+    sku_to_product_name = {
+        '8719326399355': 'Citroen',
+        '8719326399362': 'Bloem',
+        '8719326399379': 'Gember',
+        '8719326399386': 'Kombucha',
+        '8719326399393': 'Waterkefir',
+        '8719327215111': 'Starter Box',
+        '8719327215128': 'Frisdrank Mix',
+        '8719327215135': 'Mix Originals',
+        '8719327215159': 'Kalender',
+        '8719327215180': 'Probiotica',
+        '265220495mm': 'Verzenddoos 2',
+        '634266242mm': 'Verzenddoos 3'
     }
-    cleaned_data.append(cleaned_entry)
 
-# Maak een dataframe van de cleaned_data
-df = pd.DataFrame(cleaned_data)
+    df['Product'] = df['Sku'].map(sku_to_product_name)
 
-# Create the product column
-sku_to_product_name = {
-    '8719326399355': 'Citroen',
-    '8719326399362': 'Bloem',
-    '8719326399379': 'Gember',
-    '8719326399386': 'Kombucha',
-    '8719326399393': 'Waterkefir',
-    '8719327215111': 'Starter Box',
-    '8719327215128': 'Frisdrank Mix',
-    '8719327215135': 'Mix Originals',
-    '8719327215159': 'Kalender',
-    '8719327215180': 'Probiotica',
-    '265220495mm': 'Verzenddoos 2',
-    '634266242mm': 'Verzenddoos 3'
-}
+    # Custom parsing function
+    def parse_datetime(dt_str):
+        for fmt in ('%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S'):
+            try:
+                return datetime.strptime(dt_str, fmt)
+            except ValueError:
+                pass
+        return pd.NaT
 
-df['Product'] = df['Sku'].map(sku_to_product_name)
+    # Create Date column
+    df['Created'] = df['Created'].apply(parse_datetime)
+    df['Datum'] = df['Created'].dt.date
 
-# Custom parsing function
-def parse_datetime(dt_str):
-    for fmt in ('%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S'):
-        try:
-            return datetime.strptime(dt_str, fmt)
-        except ValueError:
-            pass
-    return pd.NaT
+    # Select the relevant columns
+    relevant_columns = ['Id', 'Product', 'Aantal', 'Datum', 'Type', 'Batch', 'Quarantaine']
+    df = df[relevant_columns]
 
-# Create Date column
-df['Created'] = df['Created'].apply(parse_datetime)
-df['Datum'] = df['Created'].dt.date
+    # Limit to the necessary dates
+    df = df[df['Datum'] == today]
 
-# Select the relevant columns
-relevant_columns = ['Id', 'Product', 'Aantal', 'Datum', 'Type', 'Batch', 'Quarantaine']
-df = df[relevant_columns]
+    # Tabulate the data
+    table = tabulate(df, headers='keys', tablefmt='psql')
 
-# Limit to the necessary dates
-df = df[df['Datum'] == today]
-
-# Tabulate the data
-table = tabulate(df, headers='keys', tablefmt='psql')
-
-try:
-# Voer de query uit en laad de resultaten in een DataFrame
-    pd_gbq.to_gbq(df, destination_table=f'{project_id}.{dataset_id}.{table_id}', project_id=f'{project_id}', credentials=credentials, if_exists='append')
-    print("Upload naar BigQuery succesvol voltooid!")
-except Exception as e:
-    error_message = f"Fout bij het uploaden naar BigQuery: {str(e)}"
-    print(error_message)
+    try:
+    # Voer de query uit en laad de resultaten in een DataFrame
+        pd_gbq.to_gbq(df, destination_table=f'{project_id}.{dataset_id}.{table_id}', project_id=f'{project_id}', credentials=credentials, if_exists='append')
+        print("Upload naar BigQuery succesvol voltooid!")
+    except Exception as e:
+        error_message = f"Fout bij het uploaden naar BigQuery: {str(e)}"
+        print(error_message)
