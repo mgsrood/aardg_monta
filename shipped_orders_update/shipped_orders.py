@@ -198,7 +198,7 @@ if __name__ == "__main__":
     yesterday = today - timedelta(days=1)
 
     # Fetch orders for the last 7 days
-    order_list = fetch_orders(four_days_ago, api_url)
+    order_list = fetch_orders(seven_days_ago, api_url)
 
     # Process orders to create a DataFrame
     df = process_orders(order_list)
