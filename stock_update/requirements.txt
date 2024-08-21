@@ -1,5 +1,0 @@
-pandas
-pandas_gbq
-protobuf
-python-dotenv
-Requests
