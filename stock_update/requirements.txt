@@ -1,0 +1,4 @@
+gspread
+protobuf
+python-dotenv
+Requests
