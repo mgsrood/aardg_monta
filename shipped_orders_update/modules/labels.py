@@ -30,6 +30,9 @@ def count_package_types(response_data, product_catalogue):
 def calculate_shipping_labels(package_count, mailbox_count):
     labels = 0
 
+    if package_count == 0 and mailbox_count > 0:
+        package_count = 1
+
     # Gebruik eerst de 3 omdoos
     while package_count >= 3:
         labels += 1
@@ -47,15 +50,6 @@ def calculate_shipping_labels(package_count, mailbox_count):
         labels += 1
         package_count = 0
         mailbox_count = 0  # All mailbox packages fit into the package box
-
-    # Use the 2-mailbox boxes for remaining mailbox packages
-    while mailbox_count >= 2:
-        labels += 1
-        mailbox_count -= 2
-
-    # Handle remaining mailbox packages
-    if mailbox_count > 0:
-        labels += 1
 
     return labels
 

@@ -33,7 +33,7 @@ def main():
 
         # Labels berekenen
         shipping_labels = calculate_shipping_labels(package_count, mailbox_count)
-
+        print(shipping_labels)
         # Aantal labels bepalen
         actual_labels = determine_actual_shipments(response_data)
 
@@ -44,7 +44,8 @@ def main():
             message += f"Fals positief: order {order} heeft {actual_labels} verzendlabels, maar {shipping_labels} nodig.\n"
         else: 
             continue
-    
+
+    # Mail verzenden
     if message:
         send_email(message, recipient_email, smtp_server, smtp_port, sender_email, sender_password)
 
