@@ -39,9 +39,9 @@ def main():
 
         # Afwijking vaststellen
         if actual_labels > shipping_labels:
-            message += f"Fals negatief: order {order} heeft {actual_labels} verzendlabels, maar {shipping_labels} nodig.\n"
+            message += f"Vals negatief: order {order} heeft {actual_labels} verzendlabels, maar {shipping_labels} nodig.\n"
         elif actual_labels < shipping_labels:
-            message += f"Fals positief: order {order} heeft {actual_labels} verzendlabels, maar {shipping_labels} nodig.\n"
+            message += f"Vals positief: order {order} heeft {actual_labels} verzendlabels, maar {shipping_labels} nodig.\n"
         else: 
             continue
 
