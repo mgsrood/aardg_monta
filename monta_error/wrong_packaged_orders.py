@@ -75,7 +75,7 @@ def shipments(order_id):
     url = api_url + endpoint
     p_package, p_mailbox = 0, 0
     try:
-        response = requests.get(url, auth=HTTPBasicAuth(username, password))
+        response = requests.get(url, auth=HTTPBasicAuth(username, password), timeout=120)
         if response.status_code == 200:
             response_data = response.json()
             for item in response_data['ShippedBoxesNotOnPallets']:

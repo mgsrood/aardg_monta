@@ -18,7 +18,7 @@ def shipment_label(base_url, username, password, order_id):
 
     try:
         # Request definieren
-        response = requests.get(base_url + endpoint, auth=HTTPBasicAuth(username, password), headers=headers)
+        response = requests.get(base_url + endpoint, auth=HTTPBasicAuth(username, password), headers=headers, timeout=120)
         if response.status_code == 200:
             response_data = response.json()
             return response_data
@@ -48,7 +48,7 @@ def order_ids(base_url, username, password):
 
         try:
             # Request definieren
-            request = requests.get(full_url, auth=HTTPBasicAuth(username, password), headers=headers)
+            request = requests.get(full_url, auth=HTTPBasicAuth(username, password), headers=headers, timeout=120)
 
             # Checken of het verzoek succesvol was
             if request.status_code == 200:

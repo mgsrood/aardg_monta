@@ -31,7 +31,7 @@ order_list_endpoint = f"order/updated_since/{updated_since}"
 order_list_url = api_url + order_list_endpoint
 
 # Create response and turn into a DataFrame
-order_list_response = requests.get(order_list_url, auth=HTTPBasicAuth(username, password))
+order_list_response = requests.get(order_list_url, auth=HTTPBasicAuth(username, password), timeout=120)
 order_list_response_data = order_list_response.json()
 
 if not order_list_response_data:
@@ -55,7 +55,7 @@ for wrong_order in wrong_orders:
     wrong_order_url = api_url + wrong_order_endpoint
 
     # Create response and turn into a DataFrame
-    wrong_order_response = requests.get(wrong_order_url, auth=HTTPBasicAuth(username, password))
+    wrong_order_response = requests.get(wrong_order_url, auth=HTTPBasicAuth(username, password), timeout=120)
     wrong_order_response_data = wrong_order_response.json()
     df = pd.DataFrame([wrong_order_response_data])
 

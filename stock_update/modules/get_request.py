@@ -9,7 +9,7 @@ def get_request(api_url, username, password):
         url = f"{api_url}product/{product_id}/stock"
 
         # GET Request
-        response = requests.get(url, auth=HTTPBasicAuth(username, password))
+        response = requests.get(url, auth=HTTPBasicAuth(username, password), timeout=120)
 
         # Retrieve stock value
         data = response.json()
