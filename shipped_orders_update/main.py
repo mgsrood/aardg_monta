@@ -16,7 +16,7 @@ def main():
     smtp_port = os.getenv("MAIL_SMTP_PORT")
     sender_email = os.getenv("MAIL_SENDER_EMAIL")
     sender_password = os.getenv("MAIL_SENDER_PASSWORD")
-    recipient_email = os.getenv("MAIL_RECIPIENT_EMAIL")
+    recipient_email = "mgsrood@gmail.com"
 
     # Orders vorige week ophalen
     order_list = order_ids(base_url, username, password)
